@@ -20,10 +20,19 @@ class UserSerializer(serializers.ModelSerializer):
             'email',
             'user_type',
             'password',
-            'token'
+            'token',
         ]
 
+
     def get_token(self, obj):
-        user= obj.user
-        token= get_tokens_for_user(user)
+        token= get_tokens_for_user(obj)
         return token["access"]
+
+    def create(self, validated_data): 
+        user_obj= User.objects.create(email=validated_data.get('email'),
+                                    user_type= validated_data.get('user_type')
+                                    )
+        user_obj.set_password(validated_data.pop('password'))
+        user_obj.save()
+
+        return user_obj
