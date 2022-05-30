@@ -1,1 +1,1 @@
-web: gunicorn EgbianAPI.wsgi
+web: gunicorn valuehandler.wsgi
