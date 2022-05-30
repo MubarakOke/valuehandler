@@ -5,7 +5,8 @@ from accounts import serializers
 
 
 # Create your views here.
-class Registration(CreateAPIView):
+class RegistrationView(CreateAPIView):
     parser_classes = (MultiPartParser, FormParser, JSONParser)
     permission_classes= [] 
-    serializer_class= serializers.userSerializer
+    authentication_classes=[]
+    serializer_class= serializers.UserSerializer
