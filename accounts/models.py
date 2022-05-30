@@ -37,6 +37,8 @@ class User(AbstractBaseUser):
     user_type= models.CharField(max_length=255, blank=True, null=True)
     objects= UserManager
 
+    USERNAME_FIELD = 'email'
+
     def __str__(self):
         return self.email
 

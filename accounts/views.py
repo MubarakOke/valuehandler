@@ -8,4 +8,4 @@ from accounts import serializers
 class Registration(CreateAPIView):
     parser_classes = (MultiPartParser, FormParser, JSONParser)
     permission_classes= [] 
-    serializer_class= serializer.userSerializer
+    serializer_class= serializers.userSerializer
