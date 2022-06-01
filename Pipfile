@@ -13,6 +13,8 @@ python-dotenv = "*"
 psycopg2 = "*"
 whitenoise = "*"
 gunicorn = "*"
+pandas = "*"
+openpyxl = "*"
 
 [dev-packages]
 
