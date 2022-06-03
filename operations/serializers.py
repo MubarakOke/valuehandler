@@ -1,9 +1,9 @@
 from rest_framework import serializers
 from operations.models import (Calculation, Rate, Tariff) 
-from accounts.serializers import UserSerializer
+from accounts.serializers import UserSerializer, UserRegisterSerializer 
 
 class CalculationSerializer(serializers.ModelSerializer):
-    user= UserSerializer(read_only=True)
+    user= UserRegisterSerializer(read_only=True)
     class Meta:
         model= Calculation
         fields= [
@@ -13,10 +13,6 @@ class CalculationSerializer(serializers.ModelSerializer):
             'cost',
         ]
     
-    def create(self, validated_data):
-        calculation_obj= Calculation.objects.create(decription=validated_data.get('decription'), duty=validated_data.get('duty'), cost=validated_data.get('cost'))
-        calculation_obj.save()
-        return calculation_obj
 
 
 class RateSerializer(serializers.ModelSerializer):
@@ -27,7 +23,7 @@ class RateSerializer(serializers.ModelSerializer):
                     'currency_name',
                     'currency_code',
                     'exchange_rate'
-                ]
+                ] 
 
 
 class TariffSerializer(serializers.Serializer):

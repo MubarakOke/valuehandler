@@ -36,3 +36,11 @@ class UserSerializer(serializers.ModelSerializer):
         user_obj.save()
 
         return user_obj
+
+class UserRegisterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model= User
+        fields= [
+            'email',
+            'user_type',
+        ]

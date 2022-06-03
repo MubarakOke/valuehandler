@@ -1,10 +1,12 @@
 from django.urls import path
-from .views import RateUploadView, RateListView, TariffUploadView
+from .views import RateView, RateDetailView, TariffView, TariffDetailView, CalculationView
 
 app_name= 'operations'
 
 urlpatterns = [
-    path('rate/', RateUploadView.as_view(), name='rate_upload'),
-    path('rate/list/', RateListView.as_view(), name='rate_upload'),
-    path('tariff/', TariffUploadView.as_view(), name='tariff_upload'),
+    path('rate/', RateView.as_view(), name='rate_create_list'),
+    path('rate/<int:id>/', RateDetailView.as_view(), name='rate_update'),
+    path('tariff/', TariffView.as_view(), name='tariff_upload'),
+    path('tariff/<int:id>/', TariffDetailView.as_view(), name='tariff_update'),
+    path('calculation/', CalculationView.as_view(), name='calculate_create_list'),
 ]
