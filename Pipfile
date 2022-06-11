@@ -15,6 +15,7 @@ whitenoise = "*"
 gunicorn = "*"
 pandas = "*"
 openpyxl = "*"
+django-cors-headers = "*"
 
 [dev-packages]
 

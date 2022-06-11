@@ -32,6 +32,10 @@ DEBUG = True
 ALLOWED_HOSTS = ['127.0.0.1', 'valuehandler.herokuapp.com']
 
 AUTH_USER_MODEL = 'accounts.User'
+CORS_ALLOWED_ORIGINS= [
+    "http://localhost:3000",
+    "https://vh-calculator.netlify.app"
+]
 
 # Application definition
 
@@ -42,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
     'accounts',
@@ -50,6 +55,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
