@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework.generics import ListAPIView, GenericAPIView, CreateAPIView, DestroyAPIView, UpdateAPIView
+from rest_framework.generics import GenericAPIView, CreateAPIView, DestroyAPIView, UpdateAPIView
 from rest_framework.mixins import ListModelMixin, UpdateModelMixin
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
@@ -8,7 +8,9 @@ from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 import pandas as pd
 from rest_framework.response import Response
 from operations import  serializers
-
+from accounts.serializers import UserRegisterSerializer
+from django.contrib.auth import get_user_model
+User=get_user_model()
 
 # Create your views here.
 
@@ -121,5 +123,3 @@ class CalculationView(ListModelMixin, GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
-
-

@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView,ListAPIView,UpdateAPIView
 from django.db.models import Q
 from rest_framework.views import APIView
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
@@ -75,3 +75,17 @@ class AuthenticateAdminView(APIView):
                                 "user": UserRegisterSerializer(user_obj).data,                                           
                                 }, status=200)
         return Response({"error": "invalid login details"}, status=400)
+
+
+class UserListView(ListAPIView):
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
+    permission_classes= [] 
+    serializer_class= UserRegisterSerializer
+    authentication_classes=[]
+    queryset= User.objects.all()
+class EditUserRoleView(UpdateAPIView):
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
+    permission_classes= [] 
+    serializer_class= UserRegisterSerializer
+    authentication_classes=[]
+    queryset= User.objects.all()
