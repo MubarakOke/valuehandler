@@ -16,6 +16,7 @@ gunicorn = "*"
 pandas = "*"
 openpyxl = "*"
 django-cors-headers = "*"
+xlrd = "*"
 
 [dev-packages]
 

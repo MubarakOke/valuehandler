@@ -23,4 +23,6 @@ class Tariff(models.Model):
     su= models.CharField(max_length=255, blank=True, null=True)
     id_tariff= models.CharField(max_length=255, blank=True, null=True)
     vat= models.CharField(max_length=255, blank=True, null=True)
+    levy= models.CharField(max_length=255, blank=True, null=True)
+    e_duty= models.CharField(max_length=255, blank=True, null=True)
 

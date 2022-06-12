@@ -79,13 +79,11 @@ class AuthenticateAdminView(APIView):
 
 class UserListView(ListAPIView):
     parser_classes = (MultiPartParser, FormParser, JSONParser)
-    permission_classes= [] 
     serializer_class= UserRegisterSerializer
-    authentication_classes=[]
     queryset= User.objects.all()
+
 class EditUserRoleView(UpdateAPIView):
     parser_classes = (MultiPartParser, FormParser, JSONParser)
-    permission_classes= [] 
-    serializer_class= UserRegisterSerializer
-    authentication_classes=[]
+    serializer_class= UserRegisterSerializer   
+    lookup_field= 'id'
     queryset= User.objects.all()

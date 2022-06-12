@@ -1,3 +1,4 @@
+from cmath import nan
 from django.shortcuts import render
 from rest_framework.generics import GenericAPIView, CreateAPIView, DestroyAPIView, UpdateAPIView
 from rest_framework.mixins import ListModelMixin, UpdateModelMixin
@@ -10,6 +11,7 @@ from rest_framework.response import Response
 from operations import  serializers
 from accounts.serializers import UserRegisterSerializer
 from django.contrib.auth import get_user_model
+from .utils import convertnan
 User=get_user_model()
 
 # Create your views here.
@@ -28,7 +30,7 @@ class RateView(ListModelMixin, GenericAPIView):
         except:
             return Response({"error": "please upload excel"}, status=400)
         try:
-            rate_list= [Rate(currency_name=value['currency name'], currency_code=value['currency code'], exchange_rate=value['exchange rate']) for value in file]
+            rate_list= [Rate(currency_name=value['Name'], currency_code=value['Code'], exchange_rate=value['Exchange rate']) for value in file]
         except:
             return Response({"error": "ensure currency_name, currency_code and exchange_rate are in excel file"}, status=400)
         Rate.objects.all().delete()
@@ -48,21 +50,22 @@ class RateDetailView(UpdateAPIView):
     lookup_field= 'id'
 
 
-class TariffView(GenericAPIView):
+class TariffView(ListModelMixin, GenericAPIView):
     parser_classes = (MultiPartParser, FormParser, JSONParser)
     permission_classes= [] 
     authentication_classes=[]
+    serializer_class= serializers.TariffSerializer
     queryset= Tariff.objects.all()
 
     def post(self, request, *args, **kwargs):
         file_uploaded= request.FILES.get('file_upload')
         try:
-            file= pd.read_excel(file_uploaded).to_dict(orient='record')
+            file= pd.read_excel(file_uploaded).to_dict(orient='records')
         except:
-            return Response({"error": "please upload excel"}, status=400)
-        
+            return Response({"error": "please upload excel"}, status=400)  
+        rate_list_converted= convertnan(file)
         try:
-            rate_list= [Tariff(hs_description=value['HSCODE DESCRIPTION'], hscode=value['HSCODE'], su=value['SU'], id_tariff=value['ID'], vat=value['VAT']) for value in file]
+            rate_list= [Tariff(hs_description=value['Description'], hscode=value['CET Code'], su=value['SU'], id_tariff=value['ID'], vat=value['VAT'], levy=value['LVY'], e_duty=value['EXC'])  for value in rate_list_converted]
         except:
             return Response({"error": "ensure HSCODE DESCRIPTION, HSCODE, SU, ID an VAT are in excel file"}, status=400)
         Tariff.objects.all().delete()
@@ -84,7 +87,7 @@ class TariffDetailView(UpdateAPIView):
 
 class CalculationView(ListModelMixin, GenericAPIView):
     parser_classes = (MultiPartParser, FormParser, JSONParser)
-    permission_classes= [IsAuthenticated]
+    permission_classes= []
     serializer_class= serializers.CalculationSerializer
     queryset= Calculation.objects.all()
 
@@ -93,29 +96,36 @@ class CalculationView(ListModelMixin, GenericAPIView):
         hscode_description= request.data.get('hscode_description')
         item_description= request.data.get('item_description')
         currency= request.data.get('currency')
-        insurance= request.data.get('insurance')
+        insurance= request.data.get('insurance', None)
+        insurance_percentage= request.data.get('insurance_percentage', None)
         fob= request.data.get('fob')
         freight= request.data.get('freight')  
-        if not hscode or not hscode_description or not item_description or not currency or not insurance or not fob or not freight:
+
+        if (not hscode or not hscode_description or not item_description or not currency or not fob or not freight)  or (not insurance and not insurance_percentage):
             return Response({"error": "please pass all the parameters"}, status=400)
         try:
-            rate_obj= Rate.objects.get(currency_name=currency)
+            rate_obj= Rate.objects.get(currency_code=currency)
+            tariff_obj= Tariff.objects.get(hscode=hscode)
         except:
             return Response({"error": "this currency does not exist"}, status=400)
 
         cf= float(fob) + float(freight)
-        i= insurance * cf
+        if insurance:
+            i= insurance
+        else:   
+            i= insurance_percentage * cf
+        print(i)
         cif= cf + i
-        cif_to_naira= cif * rate_obj.exchange_rate
-        id= float(hscode) * cif_to_naira
-        sc= 0.07 * id
-        ciss= 0.01 * fob
-        etls= 0.005 * cif_to_naira
-        vat= 0.075 * (cif_to_naira + id + sc+ ciss + etls)
-        levy= hscode * cif_to_naira
-        exercise_duty= hscode * cif_to_naira
-        custom_duty= (id + sc + ciss + etls + vat) + levy + exercise_duty
-        total_cost= fob + custom_duty
+        cif_to_naira= cif
+        id=  float(tariff_obj.id_tariff)/100 * float(cif_to_naira)
+        sc= 0.07 * float(id)
+        ciss= 0.01 * float(fob)
+        etls= 0.005 * float(cif_to_naira)
+        vat= float(tariff_obj.vat)/100 * float((cif_to_naira + id + sc+ ciss + etls))
+        levy= float(tariff_obj.levy)/100 * float(cif_to_naira)
+        exercise_duty= float(tariff_obj.e_duty)/100 * float(cif_to_naira)
+        custom_duty= float((id + sc + ciss + etls + vat)) + float(levy) +float(exercise_duty)
+        total_cost= float(fob) + float(custom_duty)
         calculation_obj= Calculation.objects.create(user=request.user, description=item_description, duty=custom_duty, cost=total_cost)
         calculation_obj.save()
         return Response({"detail": {"result": custom_duty,

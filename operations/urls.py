@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import RateView, RateDetailView, EditUserRoleView,UserListView,TariffView, TariffDetailView, CalculationView
+from .views import RateView, RateDetailView, TariffView, TariffDetailView, CalculationView
 
 app_name= 'operations'
 

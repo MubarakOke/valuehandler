@@ -10,7 +10,7 @@ class CalculationSerializer(serializers.ModelSerializer):
             'user',
             'description',
             'duty',
-            'cost',
+            'cost'
         ]
     
 
@@ -25,8 +25,16 @@ class RateSerializer(serializers.ModelSerializer):
                     'exchange_rate'
                 ] 
 
-
-class TariffSerializer(serializers.Serializer):
-    file_upload= serializers.FileField()
+class TariffSerializer(serializers.ModelSerializer):
     class Meta:
-        fields= ['file_upload']
+        model= Tariff
+        fields= [
+                    'id',
+                    'hs_description',
+                    'hscode',
+                    'su',
+                    'id_tariff',
+                    'levy',
+                    'vat',
+                    'e_duty'
+                ] 
