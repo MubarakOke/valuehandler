@@ -113,23 +113,28 @@ class CalculationView(ListModelMixin, GenericAPIView):
         if insurance:
             i= insurance
         else:   
-            i= insurance_percentage * cf
-        print(i)
+            i= insurance_percentage/100 * cf
         cif= cf + i
-        cif_to_naira= cif
-        id=  float(tariff_obj.id_tariff)/100 * float(cif_to_naira)
+        cif= cif
+        id=  float(tariff_obj.id_tariff)/100 * float(cif)
         sc= 0.07 * float(id)
         ciss= 0.01 * float(fob)
-        etls= 0.005 * float(cif_to_naira)
-        vat= float(tariff_obj.vat)/100 * float((cif_to_naira + id + sc+ ciss + etls))
-        levy= float(tariff_obj.levy)/100 * float(cif_to_naira)
-        exercise_duty= float(tariff_obj.e_duty)/100 * float(cif_to_naira)
+        etls= 0.005 * float(cif)
+        vat= float(tariff_obj.vat)/100 * float((cif + id + sc+ ciss + etls))
+        levy= float(tariff_obj.levy)/100 * float(cif)
+        exercise_duty= float(tariff_obj.e_duty)/100 * float(cif)
         custom_duty= float((id + sc + ciss + etls + vat)) + float(levy) +float(exercise_duty)
+        custom_duty_naira= float(custom_duty) * float(rate_obj.exchange_rate)
         total_cost= float(fob) + float(custom_duty)
-        calculation_obj= Calculation.objects.create(user=request.user, description=item_description, duty=custom_duty, cost=total_cost)
+        total_cost_naira= float(total_cost) * float(rate_obj.exchange_rate)
+
+        calculation_obj= Calculation.objects.create(user=request.user, description=item_description, duty=custom_duty_naira, cost=total_cost_naira)
         calculation_obj.save()
-        return Response({"detail": {"result": custom_duty,
-                                    "total": total_cost}}, status=200)
+        return Response({"detail": {f"result": custom_duty,
+                                    f"total": total_cost,
+                                    "result_NGN": custom_duty_naira,
+                                    "total_NGN": total_cost_naira
+                                    }}, status=200)
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
