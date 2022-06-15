@@ -1,20 +1,38 @@
-from cmath import nan
+
 from django.shortcuts import render
-from rest_framework.generics import GenericAPIView, CreateAPIView, DestroyAPIView, UpdateAPIView
+from rest_framework.generics import GenericAPIView,UpdateAPIView
 from rest_framework.mixins import ListModelMixin, UpdateModelMixin
-from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
+
+
+
+
 from .models import Rate, Tariff, Calculation 
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 import pandas as pd
 from rest_framework.response import Response
 from operations import  serializers
-from accounts.serializers import UserRegisterSerializer
+
 from django.contrib.auth import get_user_model
 from .utils import convertnan
+from rest_framework import permissions
+
 User=get_user_model()
 
 # Create your views here.
+
+class CalculationPermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        staff=request.user.is_staff
+        if request.method in permissions.SAFE_METHODS:
+            if staff:
+                return True
+            
+            return False
+        else:
+            if request.user.is_authenticated():
+                return True
+            return False
+
 
 class RateView(ListModelMixin, GenericAPIView):
     parser_classes = (MultiPartParser, FormParser, JSONParser)
@@ -87,7 +105,7 @@ class TariffDetailView(UpdateAPIView):
 
 class CalculationView(ListModelMixin, GenericAPIView):
     parser_classes = (MultiPartParser, FormParser, JSONParser)
-    permission_classes= []
+    permission_classes= [CalculationPermission]
     serializer_class= serializers.CalculationSerializer
     queryset= Calculation.objects.all()
 
