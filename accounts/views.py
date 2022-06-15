@@ -2,6 +2,7 @@ from django.shortcuts import render
 from rest_framework.generics import CreateAPIView,ListAPIView,UpdateAPIView
 from django.db.models import Q
 from rest_framework.views import APIView
+from rest_framework import permissions
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 from accounts import serializers
 from rest_framework.response import Response
@@ -68,7 +69,7 @@ class AuthenticateAdminView(APIView):
             
         if obj and obj.count()==1:
             user_obj= obj.first() 
-            if user_obj.check_password(password) and user_obj.user_type == 'Admin':
+            if user_obj.check_password(password) and user_obj.user_type.capitalize() == 'Admin':
                 token= get_tokens_for_user(user_obj)
                 return Response({
                                 "token": token["access"],
@@ -79,6 +80,7 @@ class AuthenticateAdminView(APIView):
 
 class UserListView(ListAPIView):
     parser_classes = (MultiPartParser, FormParser, JSONParser)
+    permission_classes = [permissions.IsAdminUser]
     serializer_class= UserRegisterSerializer
     queryset= User.objects.all()
 
