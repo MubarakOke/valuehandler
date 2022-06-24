@@ -27,7 +27,7 @@ class RegistrationView(CreateAPIView):
     authentication_classes=[]
     serializer_class= serializers.UserSerializer
 
-class AuthenticateSuperAdminView(APIView):
+class AuthenticateView(APIView):
     permission_classes= []
     authentication_classes= []
 
@@ -44,7 +44,7 @@ class AuthenticateSuperAdminView(APIView):
             
         if obj and obj.count()==1:
             user_obj= obj.first() 
-            if user_obj.check_password(password) and user_obj.user_type == 'Super Admin':
+            if user_obj.check_password(password):
                 token= get_tokens_for_user(user_obj)
                 return Response({
                                 "token": token["access"],
@@ -52,30 +52,30 @@ class AuthenticateSuperAdminView(APIView):
                                 }, status=200)
         return Response({"error": "invalid login details"}, status=400)
 
-class AuthenticateAdminView(APIView):
-    permission_classes= []
-    authentication_classes= []
+# class AuthenticateAdminView(APIView):
+#     permission_classes= []
+#     authentication_classes= []
 
-    def post(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return Response({"detail":"You are already authenticated"}, status= 400)
-        email= request.data.get('email', None)
-        password= request.data.get('password', None)
+#     def post(self, request, *args, **kwargs):
+#         if request.user.is_authenticated:
+#             return Response({"detail":"You are already authenticated"}, status= 400)
+#         email= request.data.get('email', None)
+#         password= request.data.get('password', None)
 
-        if not email and not password:
-            return Response({"error": "Please enter your email and password"}, status=400)
+#         if not email and not password:
+#             return Response({"error": "Please enter your email and password"}, status=400)
 
-        obj= User.objects.filter(Q(email__iexact= email))
+#         obj= User.objects.filter(Q(email__iexact= email))
             
-        if obj and obj.count()==1:
-            user_obj= obj.first() 
-            if user_obj.check_password(password) and user_obj.user_type.capitalize() == 'Admin':
-                token= get_tokens_for_user(user_obj)
-                return Response({
-                                "token": token["access"],
-                                "user": UserRegisterSerializer(user_obj).data,                                           
-                                }, status=200)
-        return Response({"error": "invalid login details"}, status=400)
+#         if obj and obj.count()==1:
+#             user_obj= obj.first() 
+#             if user_obj.check_password(password) and user_obj.user_type.capitalize() == 'Admin':
+#                 token= get_tokens_for_user(user_obj)
+#                 return Response({
+#                                 "token": token["access"],
+#                                 "user": UserRegisterSerializer(user_obj).data,                                           
+#                                 }, status=200)
+#         return Response({"error": "invalid login details"}, status=400)
 
 
 class UserListView(ListAPIView):
