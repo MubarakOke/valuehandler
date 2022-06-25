@@ -10,12 +10,11 @@ class Calculation(models.Model):
     description= models.CharField(max_length=255, blank=True, null=True)
     duty= models.CharField(max_length=255, blank=True, null=True)
     cost= models.CharField(max_length=255, blank=True, null=True)
-
 class Rate(models.Model):
     currency_name= models.CharField(max_length=255, blank=True, null=True)
     currency_code= models.CharField(max_length=255, blank=True, null=True)
     exchange_rate= models.FloatField(blank=True, null=True)
-
+    date_uploaded= models.DateTimeField(auto_now=True)
 
 class Tariff(models.Model):
     hs_description= models.CharField(max_length=255, blank=True, null=True)
@@ -25,4 +24,5 @@ class Tariff(models.Model):
     vat= models.CharField(max_length=255, blank=True, null=True)
     levy= models.CharField(max_length=255, blank=True, null=True)
     e_duty= models.CharField(max_length=255, blank=True, null=True)
+    date_uploaded= models.DateTimeField(auto_now=True)
 

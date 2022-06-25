@@ -22,7 +22,8 @@ class RateSerializer(serializers.ModelSerializer):
                     'id',
                     'currency_name',
                     'currency_code',
-                    'exchange_rate'
+                    'exchange_rate',
+                    'date_uploaded'
                 ] 
 
 class TariffSerializer(serializers.ModelSerializer):
@@ -36,5 +37,6 @@ class TariffSerializer(serializers.ModelSerializer):
                     'id_tariff',
                     'levy',
                     'vat',
-                    'e_duty'
+                    'e_duty',
+                    'date_uploaded'
                 ] 
