@@ -34,6 +34,7 @@ ALLOWED_HOSTS = ['127.0.0.1', 'valuehandler.herokuapp.com']
 AUTH_USER_MODEL = 'accounts.User'
 CORS_ALLOWED_ORIGINS= [
     "http://localhost:3000",
+    "http://localhost:8080",
     "https://vh-calculator.netlify.app"
 ]
 
