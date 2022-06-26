@@ -14,24 +14,24 @@ from operations import  serializers
 
 from django.contrib.auth import get_user_model
 from .utils import convertnan
-from rest_framework import permissions
+# from rest_framework import permissions
 
 User=get_user_model()
 
 # Create your views here.
 
-class CalculationPermission(permissions.BasePermission):
-    def has_permission(self, request, view):
-        staff=request.user.is_staff
-        if request.method in permissions.SAFE_METHODS:
-            if staff:
-                return True
+# class CalculationPermission(permissions.BasePermission):
+#     def has_permission(self, request, view):
+#         staff=request.user.is_staff
+#         if request.method in permissions.SAFE_METHODS:
+#             if staff:
+#                 return True
             
-            return False
-        else:
-            if request.user.is_authenticated():
-                return True
-            return False
+#             return False
+#         else:
+#             if request.user.is_authenticated():
+#                 return True
+#             return False
 
 
 class RateView(ListModelMixin, GenericAPIView):
@@ -105,7 +105,7 @@ class TariffDetailView(UpdateAPIView):
 
 class CalculationView(ListModelMixin, GenericAPIView):
     parser_classes = (MultiPartParser, FormParser, JSONParser)
-    permission_classes= [CalculationPermission]
+    permission_classes= []
     serializer_class= serializers.CalculationSerializer
     queryset= Calculation.objects.all()
 

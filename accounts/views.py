@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.generics import CreateAPIView,ListAPIView,UpdateAPIView
 from django.db.models import Q
 from rest_framework.views import APIView
-from rest_framework import permissions
+# from rest_framework import permissions
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 from accounts import serializers
 from rest_framework.response import Response
@@ -80,7 +80,7 @@ class AuthenticateView(APIView):
 
 class UserListView(ListAPIView):
     parser_classes = (MultiPartParser, FormParser, JSONParser)
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = []
     serializer_class= UserRegisterSerializer
     queryset= User.objects.all()
 
