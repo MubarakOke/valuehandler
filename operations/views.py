@@ -2,7 +2,7 @@
 from django.shortcuts import render
 from rest_framework.generics import GenericAPIView,UpdateAPIView
 from rest_framework.mixins import ListModelMixin, UpdateModelMixin
-
+from rest_framework.views import APIView
 
 
 
@@ -53,7 +53,7 @@ class RateView(ListModelMixin, GenericAPIView):
             return Response({"error": "ensure currency_name, currency_code and exchange_rate are in excel file"}, status=400)
         Rate.objects.all().delete()
         Rate.objects.bulk_create(rate_list)
-        return Response({"detail": "uploaded successfully"}, status=200)
+        return Response({"detail": "uploaded successfully"}, status=201)
     
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
@@ -88,7 +88,7 @@ class TariffView(ListModelMixin, GenericAPIView):
             return Response({"error": "ensure HSCODE DESCRIPTION, HSCODE, SU, ID an VAT are in excel file"}, status=400)
         Tariff.objects.all().delete()
         Tariff.objects.bulk_create(rate_list)
-        return Response({"detail": "uploaded successfully"}, status=200)
+        return Response({"detail": "uploaded successfully"}, status=201)
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
@@ -133,7 +133,6 @@ class CalculationView(ListModelMixin, GenericAPIView):
         else:   
             i= insurance_percentage/100 * cf
         cif= cf + i
-        cif= cif
         id=  float(tariff_obj.id_tariff)/100 * float(cif)
         sc= 0.07 * float(id)
         ciss= 0.01 * float(fob)
@@ -151,8 +150,30 @@ class CalculationView(ListModelMixin, GenericAPIView):
         return Response({"detail": {f"result": custom_duty,
                                     f"total": total_cost,
                                     "result_NGN": custom_duty_naira,
-                                    "total_NGN": total_cost_naira
+                                    "total_NGN": total_cost_naira,
+                                    "cf":cf,
+                                    "cif":cif,
+                                    "id":id,
+                                    "sc":sc,
+                                    "ciss":ciss,
+                                    "etls":etls,
+                                    "vat":vat,
+                                    "levy":levy,
+                                    "exercise_duty":exercise_duty,
                                     }}, status=200)
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
+
+class RateTariffView(APIView):
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
+    permission_classes= []
+
+    def get(self, request, *args, **kwargs):
+        rate= Rate.objects.all()
+        rate_serialized= serializers.RateSerializer(rate, many=True).data
+        tariff= Tariff.objects.all()
+        tariff_serialized=  serializers.TariffSerializer(tariff, many=True).data
+
+        return Response({"rate": rate_serialized,
+                         "tariff": tariff_serialized}, status=200)
