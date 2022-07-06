@@ -35,7 +35,7 @@ AUTH_USER_MODEL = 'accounts.User'
 CORS_ALLOWED_ORIGINS= [
     "http://localhost:3000",
     "http://localhost:8080",
-    "https://vh-calculator.netlify.app"
+    "https://calculatorvh.netlify.app"
 ]
 
 # Application definition
