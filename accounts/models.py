@@ -1,4 +1,3 @@
-import django
 from django.db import models
 from django.contrib.auth.models import (
     BaseUserManager, AbstractBaseUser
@@ -19,12 +18,16 @@ class UserManager(BaseUserManager):
     def create_superuser(self, email, password):   
         user = self.model(
             email= email,
-            user_type= "Super admin",
+            user_type= "admin",
             password=password   
         )
         user.save(using=self._db)
         return user
 
+user_choice=(
+            ('User', 'User'),
+            ('Admin', 'Admin')
+            )
 # Create your models here.
 class User(AbstractBaseUser):
     email = models.EmailField(
@@ -34,8 +37,8 @@ class User(AbstractBaseUser):
         blank=True, 
         null=True
     ) 
-    user_type= models.CharField(max_length=255, blank=True, null=True)
-    objects= UserManager
+    user_type= models.CharField(max_length=255, blank=True, null=True, choices=user_choice)
+    objects= UserManager()
 
     USERNAME_FIELD = 'email'
 
@@ -50,4 +53,4 @@ class User(AbstractBaseUser):
     
     @property
     def is_staff(self):
-        return self.user_type == "Super admin"
+        return self.user_type == "admin"

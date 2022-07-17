@@ -123,43 +123,66 @@ class CalculationView(ListModelMixin, GenericAPIView):
             return Response({"error": "please pass all the parameters"}, status=400)
         try:
             rate_obj= Rate.objects.get(currency_code=currency)
-            tariff_obj= Tariff.objects.get(hscode=hscode)
         except:
             return Response({"error": "this currency does not exist"}, status=400)
+        
+        try:
+            tariff_obj= Tariff.objects.get(hscode=hscode)
+        except:
+            return Response({"error": "this tariff does not exist"}, status=400)
 
         cf= float(fob) + float(freight)
+        cf_NGN= cf * float(rate_obj.exchange_rate)
         if insurance:
             i= insurance
         else:   
             i= insurance_percentage/100 * cf
         cif= cf + i
+        cif_NGN=cif * float(rate_obj.exchange_rate)
         id=  float(tariff_obj.id_tariff)/100 * float(cif)
+        id_NGN= id * float(rate_obj.exchange_rate)
         sc= 0.07 * float(id)
+        sc_NGN= sc * float(rate_obj.exchange_rate)
         ciss= 0.01 * float(fob)
+        ciss_NGN= ciss * float(rate_obj.exchange_rate)
         etls= 0.005 * float(cif)
+        etls_NGN= etls * float(rate_obj.exchange_rate)
         vat= float(tariff_obj.vat)/100 * float((cif + id + sc+ ciss + etls))
+        vat_NGN= vat * float(rate_obj.exchange_rate)
         levy= float(tariff_obj.levy)/100 * float(cif)
+        levy_NGN= levy * float(rate_obj.exchange_rate)
         exercise_duty= float(tariff_obj.e_duty)/100 * float(cif)
+        exercise_duty_NGN= exercise_duty * float(rate_obj.exchange_rate)
         custom_duty= float((id + sc + ciss + etls + vat)) + float(levy) +float(exercise_duty)
-        custom_duty_naira= float(custom_duty) * float(rate_obj.exchange_rate)
+        custom_duty_NGN= float(custom_duty) * float(rate_obj.exchange_rate)
+
         total_cost= float(fob) + float(custom_duty)
         total_cost_naira= float(total_cost) * float(rate_obj.exchange_rate)
 
-        calculation_obj= Calculation.objects.create(user=request.user, description=item_description, duty=custom_duty_naira, cost=total_cost_naira)
+        calculation_obj= Calculation.objects.create(user=request.user, description=item_description, duty=custom_duty_NGN, cost=total_cost_naira)
         calculation_obj.save()
-        return Response({"detail": {f"result": custom_duty,
-                                    f"total": total_cost,
-                                    "result_NGN": custom_duty_naira,
+        return Response({"detail": {"result": custom_duty,
+                                    "result_NGN": custom_duty_NGN,
+                                    "total": total_cost,    
                                     "total_NGN": total_cost_naira,
                                     "cf":cf,
+                                    "cf_NGN":cf_NGN,
                                     "cif":cif,
+                                    "cif_NGN":cif_NGN,
                                     "id":id,
+                                    "id_NGN":id_NGN,
                                     "sc":sc,
+                                    "sc_NGN":sc_NGN,
                                     "ciss":ciss,
+                                    "ciss_NGN":ciss_NGN,
                                     "etls":etls,
+                                    "etls_NGN":etls_NGN,
                                     "vat":vat,
+                                    "vat_NGN":vat_NGN,
                                     "levy":levy,
+                                    "levy_NGN":levy_NGN,
                                     "exercise_duty":exercise_duty,
+                                    "exercise_duty_NGN":exercise_duty_NGN
                                     }}, status=200)
 
     def get(self, request, *args, **kwargs):
