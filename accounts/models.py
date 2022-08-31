@@ -54,3 +54,6 @@ class User(AbstractBaseUser):
     @property
     def is_staff(self):
         return self.user_type == "Admin"
+    
+    class Meta:
+        ordering = ['-id']
