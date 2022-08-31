@@ -10,6 +10,9 @@ class Calculation(models.Model):
     description= models.CharField(max_length=255, blank=True, null=True)
     duty= models.CharField(max_length=255, blank=True, null=True)
     cost= models.CharField(max_length=255, blank=True, null=True)
+    class Meta:
+        ordering = ['-id']
+
 class Rate(models.Model):
     currency_name= models.CharField(max_length=255, blank=True, null=True)
     currency_code= models.CharField(max_length=255, blank=True, null=True)
