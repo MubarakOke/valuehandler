@@ -9,6 +9,7 @@ from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
 from accounts.serializers import UserRegisterSerializer
 from accounts.permissions import AdminPermissionOnly
+from rest_framework.permissions import IsAuthenticated
 
 
 User = get_user_model()
@@ -55,13 +56,13 @@ class AuthenticateView(APIView):
 
 class UserListView(ListAPIView):
     parser_classes = (MultiPartParser, FormParser, JSONParser)
-    permission_classes = [AdminPermissionOnly]
+    permission_classes = [IsAuthenticated&AdminPermissionOnly]
     serializer_class= UserRegisterSerializer
     queryset= User.objects.all()
 
 class EditUserRoleView(UpdateAPIView):
     parser_classes = (MultiPartParser, FormParser, JSONParser)
     serializer_class= UserRegisterSerializer   
-    permission_classes = [AdminPermissionOnly]
+    permission_classes = [IsAuthenticated&AdminPermissionOnly]
     lookup_field= 'id'
     queryset= User.objects.all()
