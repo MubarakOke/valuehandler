@@ -4,8 +4,6 @@ from rest_framework.generics import GenericAPIView,UpdateAPIView
 from rest_framework.mixins import ListModelMixin, UpdateModelMixin
 from rest_framework.views import APIView
 
-
-
 from .models import Rate, Tariff, Calculation 
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 import pandas as pd
@@ -14,31 +12,15 @@ from operations import  serializers
 
 from django.contrib.auth import get_user_model
 from .utils import convertnan
-# from rest_framework import permissions
+
+
 
 User=get_user_model()
 
 # Create your views here.
-
-# class CalculationPermission(permissions.BasePermission):
-#     def has_permission(self, request, view):
-#         staff=request.user.is_staff
-#         if request.method in permissions.SAFE_METHODS:
-#             if staff:
-#                 return True
-            
-#             return False
-#         else:
-#             if request.user.is_authenticated():
-#                 return True
-#             return False
-
-
 class RateView(ListModelMixin, GenericAPIView):
     parser_classes = (MultiPartParser, FormParser, JSONParser)
-    permission_classes= [] 
     serializer_class= serializers.RateSerializer
-    authentication_classes=[]
     queryset= Rate.objects.all()
 
     def post(self, request, *args, **kwargs):
@@ -60,18 +42,13 @@ class RateView(ListModelMixin, GenericAPIView):
 
 
 class RateDetailView(UpdateAPIView):
-    parser_classes = (MultiPartParser, FormParser, JSONParser)
-    permission_classes= [] 
+    parser_classes = (MultiPartParser, FormParser, JSONParser) 
     serializer_class= serializers.RateSerializer
-    authentication_classes=[]
     queryset= Rate.objects.all()
     lookup_field= 'id'
 
-
 class TariffView(ListModelMixin, GenericAPIView):
     parser_classes = (MultiPartParser, FormParser, JSONParser)
-    permission_classes= [] 
-    authentication_classes=[]
     serializer_class= serializers.TariffSerializer
     queryset= Tariff.objects.all()
 
@@ -95,9 +72,7 @@ class TariffView(ListModelMixin, GenericAPIView):
 
 class TariffDetailView(UpdateAPIView):
     parser_classes = (MultiPartParser, FormParser, JSONParser)
-    permission_classes= [] 
     serializer_class= serializers.TariffSerializer
-    authentication_classes=[]
     queryset= Tariff.objects.all()
     lookup_field= 'id'
 
@@ -105,7 +80,6 @@ class TariffDetailView(UpdateAPIView):
 
 class CalculationView(ListModelMixin, GenericAPIView):
     parser_classes = (MultiPartParser, FormParser, JSONParser)
-    permission_classes= []
     serializer_class= serializers.CalculationSerializer
     queryset= Calculation.objects.all()
 
@@ -150,6 +124,7 @@ class CalculationView(ListModelMixin, GenericAPIView):
         vat= float(tariff_obj.vat)/100 * float((cif + id + sc+ ciss + etls))
         vat_NGN= vat * float(rate_obj.exchange_rate)
         levy= float(tariff_obj.levy)/100 * float(cif)
+        print("levy", levy)
         levy_NGN= levy * float(rate_obj.exchange_rate)
         exercise_duty= float(tariff_obj.e_duty)/100 * float(cif)
         exercise_duty_NGN= exercise_duty * float(rate_obj.exchange_rate)
