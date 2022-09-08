@@ -58,13 +58,14 @@ class TariffView(ListModelMixin, GenericAPIView):
             file= pd.read_excel(file_uploaded).to_dict(orient='records')
         except:
             return Response({"error": "please upload excel"}, status=400)  
-        rate_list_converted= convertnan(file)
+        tariff_list_converted= convertnan(file)
         try:
-            rate_list= [Tariff(hs_description=value['Description'], hscode=value['CET Code'], su=value['SU'], id_tariff=value['ID'], vat=value['VAT'], levy=value['LVY'], e_duty=value['EXC'])  for value in rate_list_converted]
+            hs_code_name_check= lambda x, y, value: value[x] if x in value else value[y]
+            tariff_list= [Tariff(hs_description=value['Description'], hscode=hs_code_name_check('CET Code', 'HS Code', value), su=value['SU'], id_tariff=value['ID'], vat=value['VAT'], levy=value['LVY'], e_duty=value['EXC'])  for value in tariff_list_converted]
         except:
-            return Response({"error": "ensure HSCODE DESCRIPTION, HSCODE, SU, ID an VAT are in excel file"}, status=400)
+            return Response({"error": "ensure Description, HS Code, SU, ID, VAT, LVY, EXC are in excel file title"}, status=400)
         Tariff.objects.all().delete()
-        Tariff.objects.bulk_create(rate_list)
+        Tariff.objects.bulk_create(tariff_list)
         return Response({"detail": "uploaded successfully"}, status=201)
 
     def get(self, request, *args, **kwargs):
