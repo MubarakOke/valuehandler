@@ -55,13 +55,12 @@ class TariffView(ListModelMixin, GenericAPIView):
     def post(self, request, *args, **kwargs):
         file_uploaded= request.FILES.get('file_upload')
         try:
-            file= pd.read_excel(file_uploaded).to_dict(orient='records')
+            file= pd.read_excel(file_uploaded).dropna(how='all').fillna(0).drop_duplicates().to_dict(orient='records')
         except:
             return Response({"error": "please upload excel"}, status=400)  
-        tariff_list_converted= convertnan(file)
         try:
             hs_code_name_check= lambda x, y, value: value[x] if x in value else value[y]
-            tariff_list= [Tariff(hs_description=value['Description'], hscode=hs_code_name_check('CET Code', 'HS Code', value), su=value['SU'], id_tariff=value['ID'], vat=value['VAT'], levy=value['LVY'], e_duty=value['EXC'])  for value in tariff_list_converted]
+            tariff_list= [Tariff(hs_description=value['Description'], hscode=hs_code_name_check('CET Code', 'HS Code', value), su=value['SU'], id_tariff=value['ID'], vat=value['VAT'], levy=value['LVY'], e_duty=value['EXC'])  for value in file]
         except:
             return Response({"error": "ensure Description, HS Code, SU, ID, VAT, LVY, EXC are in excel file title"}, status=400)
         Tariff.objects.all().delete()
