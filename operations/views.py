@@ -57,7 +57,7 @@ class TariffView(ListModelMixin, GenericAPIView):
         try:
             file= pd.read_excel(file_uploaded).dropna(how='all').fillna(0).drop_duplicates().to_dict(orient='records')
         except:
-            return Response({"error": "please upload excel"}, status=400)  
+            return Response({"error": "please upload excel in xls or xlsx format"}, status=400)  
         try:
             hs_code_name_check= lambda x, y, value: value[x] if x in value else value[y]
             tariff_list= [Tariff(hs_description=value['Description'], hscode=hs_code_name_check('CET Code', 'HS Code', value), su=value['SU'], id_tariff=value['ID'], vat=value['VAT'], levy=value['LVY'], e_duty=value['EXC'])  for value in file]
@@ -74,7 +74,7 @@ class TariffDetailView(UpdateAPIView):
     parser_classes = (MultiPartParser, FormParser, JSONParser)
     serializer_class= serializers.TariffSerializer
     queryset= Tariff.objects.all()
-    lookup_field= 'id'
+    lookup_field= 'hscode'
 
 
 
@@ -113,7 +113,8 @@ class CalculationView(ListModelMixin, GenericAPIView):
             i= insurance_percentage/100 * cf
         cif= cf + i
         cif_NGN=cif * float(rate_obj.exchange_rate)
-        id=  float(tariff_obj.id_tariff)/100 * float(cif)
+        id_percentage= float(tariff_obj.id_tariff)/100
+        id=  id_percentage * float(cif)
         id_NGN= id * float(rate_obj.exchange_rate)
         sc= 0.07 * float(id)
         sc_NGN= sc * float(rate_obj.exchange_rate)
@@ -121,11 +122,14 @@ class CalculationView(ListModelMixin, GenericAPIView):
         ciss_NGN= ciss * float(rate_obj.exchange_rate)
         etls= 0.005 * float(cif)
         etls_NGN= etls * float(rate_obj.exchange_rate)
-        levy= float(tariff_obj.levy)/100 * float(cif)
+        levy_percentage= float(tariff_obj.levy)/100
+        levy= levy_percentage * float(cif)
         levy_NGN= levy * float(rate_obj.exchange_rate)
-        exercise_duty= float(tariff_obj.e_duty)/100 * float(cif)
+        exercise_duty_percentage= float(tariff_obj.e_duty)/100
+        exercise_duty= exercise_duty_percentage * float(cif)
         exercise_duty_NGN= exercise_duty * float(rate_obj.exchange_rate)
-        vat= float(tariff_obj.vat)/100 * float((cif + id + sc+ ciss + etls + levy + exercise_duty))
+        vat_percentage= float(tariff_obj.vat)/100
+        vat= vat_percentage * float((cif + id + sc+ ciss + etls + levy + exercise_duty))
         vat_NGN= vat * float(rate_obj.exchange_rate)
         custom_duty= float((id + sc + ciss + etls + vat)) + float(levy) +float(exercise_duty)
         custom_duty_NGN= float(custom_duty) * float(rate_obj.exchange_rate)
@@ -143,6 +147,7 @@ class CalculationView(ListModelMixin, GenericAPIView):
                                     "cf_NGN":cf_NGN,
                                     "cif":cif,
                                     "cif_NGN":cif_NGN,
+                                    "id_percentage":id_percentage,
                                     "id":id,
                                     "id_NGN":id_NGN,
                                     "sc":sc,
@@ -151,10 +156,13 @@ class CalculationView(ListModelMixin, GenericAPIView):
                                     "ciss_NGN":ciss_NGN,
                                     "etls":etls,
                                     "etls_NGN":etls_NGN,
+                                    "vat_percentage":vat_percentage,
                                     "vat":vat,
                                     "vat_NGN":vat_NGN,
+                                    "levy_percentage":levy_percentage,
                                     "levy":levy,
                                     "levy_NGN":levy_NGN,
+                                    "exercise_duty_percentage":exercise_duty_percentage,
                                     "exercise_duty":exercise_duty,
                                     "exercise_duty_NGN":exercise_duty_NGN
                                     }}, status=200)
