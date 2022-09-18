@@ -55,7 +55,11 @@ class TariffView(ListModelMixin, GenericAPIView):
     def post(self, request, *args, **kwargs):
         file_uploaded= request.FILES.get('file_upload')
         try:
-            file= pd.read_excel(file_uploaded).dropna(how='all').fillna(0).drop_duplicates().to_dict(orient='records')
+            file= pd.read_excel(file_uploaded).dropna(how='all').fillna(0).drop_duplicates()
+            try:
+                file= file.drop_duplicates('CET Code', keep='last').to_dict(orient='records')
+            except :
+                file= file.drop_duplicates('HS Code', keep='last').to_dict(orient='records')
         except:
             return Response({"error": "please upload excel in xls or xlsx format"}, status=400)  
         try:

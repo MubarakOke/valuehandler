@@ -2,6 +2,7 @@ from locale import currency
 from django.db import models
 from django.contrib.auth import get_user_model
 
+
 User= get_user_model()
 # Create your models here.
 
@@ -21,7 +22,7 @@ class Rate(models.Model):
 
 class Tariff(models.Model):
     hs_description= models.CharField(max_length=255, blank=True, null=True)
-    hscode= models.CharField(max_length=255, blank=True, null=True)
+    hscode= models.CharField(max_length=255, blank=False, null=False, primary_key=True)
     su= models.CharField(max_length=255, blank=True, null=True)
     id_tariff= models.CharField(max_length=255, blank=True, null=True)
     vat= models.CharField(max_length=255, blank=True, null=True)

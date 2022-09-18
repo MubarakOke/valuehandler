@@ -30,7 +30,6 @@ class TariffSerializer(serializers.ModelSerializer):
     class Meta:
         model= Tariff
         fields= [
-                    'id',
                     'hs_description',
                     'hscode',
                     'su',
