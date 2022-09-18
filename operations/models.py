@@ -11,6 +11,7 @@ class Calculation(models.Model):
     description= models.CharField(max_length=255, blank=True, null=True)
     duty= models.CharField(max_length=255, blank=True, null=True)
     cost= models.CharField(max_length=255, blank=True, null=True)
+    timestamp= models.DateTimeField(auto_now=True)
     class Meta:
         ordering = ['-id']
 

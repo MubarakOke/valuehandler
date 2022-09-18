@@ -10,7 +10,8 @@ class CalculationSerializer(serializers.ModelSerializer):
             'user',
             'description',
             'duty',
-            'cost'
+            'cost',
+            'timestamp'
         ]
     
 
