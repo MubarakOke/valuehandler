@@ -55,7 +55,7 @@ class TariffView(ListModelMixin, GenericAPIView):
     def post(self, request, *args, **kwargs):
         file_uploaded= request.FILES.get('file_upload')
         try:
-            file= pd.read_excel(file_uploaded).dropna(how='all').fillna(0).drop_duplicates()
+            file= pd.read_excel(file_uploaded).drop_duplicates(keep=False).dropna(how='all').fillna(0)
             try:
                 file= file.drop_duplicates('CET Code', keep='last').to_dict(orient='records')
             except :
