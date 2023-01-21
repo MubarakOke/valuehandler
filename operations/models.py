@@ -1,4 +1,5 @@
 from locale import currency
+from uuid import uuid4
 from django.db import models
 from django.contrib.auth import get_user_model
 
@@ -16,6 +17,7 @@ class Calculation(models.Model):
         ordering = ['-id']
 
 class Rate(models.Model):
+    id= models.UUIDField(primary_key=True, default=uuid4, editable=False)
     currency_name= models.CharField(max_length=255, blank=True, null=True)
     currency_code= models.CharField(max_length=255, blank=True, null=True)
     exchange_rate= models.FloatField(blank=True, null=True)

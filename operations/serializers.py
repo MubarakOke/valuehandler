@@ -40,3 +40,4 @@ class TariffSerializer(serializers.ModelSerializer):
                     'e_duty',
                     'date_uploaded'
                 ] 
+        extra_kwargs= {'hscode':{'required':False}} 
