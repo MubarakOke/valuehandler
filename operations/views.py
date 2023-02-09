@@ -1,7 +1,8 @@
 
 from django.shortcuts import render
+from django.db import transaction
 from rest_framework.generics import GenericAPIView,UpdateAPIView
-from rest_framework.mixins import ListModelMixin, UpdateModelMixin
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.views import APIView
 
 from .models import Rate, Tariff, Calculation 
@@ -41,25 +42,30 @@ class RateView(ListModelMixin, GenericAPIView):
         return self.list(request, *args, **kwargs)
 
 
-class RateDetailView(UpdateAPIView):
+class RateDetailView(RetrieveModelMixin, UpdateAPIView):
     parser_classes = (MultiPartParser, FormParser, JSONParser) 
     serializer_class= serializers.RateSerializer
     queryset= Rate.objects.all()
     lookup_field= 'id'
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
 
 class TariffView(ListModelMixin, GenericAPIView):
     parser_classes = (MultiPartParser, FormParser, JSONParser)
     serializer_class= serializers.TariffSerializer
     queryset= Tariff.objects.all()
 
+    @transaction.atomic
     def post(self, request, *args, **kwargs):
         file_uploaded= request.FILES.get('file_upload')
         try:
             file= pd.read_excel(file_uploaded).drop_duplicates(keep=False).dropna(how='all').fillna(0)
             try:
-                file= file.drop_duplicates('CET Code', keep='last').to_dict(orient='records')
+                file= file.drop_duplicates('CET Code', keep='first').to_dict(orient='records')
             except :
-                file= file.drop_duplicates('HS Code', keep='last').to_dict(orient='records')
+                file= file.drop_duplicates('HS Code', keep='first').to_dict(orient='records')
         except:
             return Response({"error": "please upload excel in xls or xlsx format"}, status=400)  
         try:
@@ -74,13 +80,14 @@ class TariffView(ListModelMixin, GenericAPIView):
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
-class TariffDetailView(UpdateAPIView):
+class TariffDetailView(RetrieveModelMixin, UpdateAPIView):
     parser_classes = (MultiPartParser, FormParser, JSONParser)
     serializer_class= serializers.TariffSerializer
     queryset= Tariff.objects.all()
     lookup_field= 'hscode'
 
-
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
 
 class CalculationView(ListModelMixin, GenericAPIView):
     parser_classes = (MultiPartParser, FormParser, JSONParser)
